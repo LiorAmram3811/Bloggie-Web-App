@@ -23,18 +23,21 @@ namespace Bloggie.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterRequest registerRequest)
         {
-            var identityUser = new IdentityUser
+            if (ModelState.IsValid)
             {
-                UserName = registerRequest.UserName,
-                Email = registerRequest.Email
-            };
-            var identityResult = await _userManager.CreateAsync(identityUser, registerRequest.Password);
-            if (identityResult.Succeeded)
-            {
-                var roleIdentityResult = await _userManager.AddToRoleAsync(identityUser, "User");
-                if (roleIdentityResult.Succeeded)
+                var identityUser = new IdentityUser
                 {
-                    return RedirectToAction("Register");
+                    UserName = registerRequest.UserName,
+                    Email = registerRequest.Email
+                };
+                var identityResult = await _userManager.CreateAsync(identityUser, registerRequest.Password);
+                if (identityResult.Succeeded)
+                {
+                    var roleIdentityResult = await _userManager.AddToRoleAsync(identityUser, "User");
+                    if (roleIdentityResult.Succeeded)
+                    {
+                        return RedirectToAction("Register");
+                    }
                 }
             }
             // TODO: show errors
@@ -49,14 +52,17 @@ namespace Bloggie.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
-            var signInResult = await _signInManager.PasswordSignInAsync(loginRequest.UserName, loginRequest.Password, false, false);
-            if (signInResult != null && signInResult.Succeeded)
+            if (ModelState.IsValid)
             {
-                if(!string.IsNullOrWhiteSpace(loginRequest.ReturnUrl))
+                var signInResult = await _signInManager.PasswordSignInAsync(loginRequest.UserName, loginRequest.Password, false, false);
+                if (signInResult != null && signInResult.Succeeded)
                 {
-                    return Redirect(loginRequest.ReturnUrl);
+                    if (!string.IsNullOrWhiteSpace(loginRequest.ReturnUrl))
+                    {
+                        return Redirect(loginRequest.ReturnUrl);
+                    }
+                    return RedirectToAction("Index", "Home");
                 }
-                return RedirectToAction("Index", "Home");
             }
             // TODO: show errors
             return View();

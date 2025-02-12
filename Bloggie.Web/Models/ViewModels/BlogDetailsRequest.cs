@@ -17,5 +17,7 @@ namespace Bloggie.Web.Models.ViewModels
         public ICollection<Tag> Tags { get; set; }
         public int TotalLikes { get; set; }
         public bool IsLiked { get; set; }
+        public string CommentDescription { get; set; }
+        public IEnumerable<BlogCommentRequest> Comments { get; set; }
     }
 }
